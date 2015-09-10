@@ -7,21 +7,26 @@ ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../java]
 
 == About Me
-Scott Hickey
-Principal Enterprise Architect
-Mutual of Omaha
+Scott Hickey +
+Principal Enterprise Architect +
+Mutual of Omaha +
 
-@jshickey
-scott.hickey@mutualofomaha.com
+@jshickey +
+scott.hickey@mutualofomaha.com +
 
 == Agenda
+_(please ask questions as you have them)_
+
 [%step]
 * Project Overview
+* Code Examples
+* TDD
+* Decision Points
 * Lessons Learned Getting Into Production
 * Eight Years of Enhancements and Maintainence
 * Other Groovy Sightings at Mutual of Omaha
 
-Please Ask Questions As You Have Them
+
 
 == Speaker Notes
 
@@ -33,18 +38,155 @@ You've unlocked the super secret notes area.
 Neat huh?
 --
 
-== Source Code
+== Project Overview
+
+[%step]
+* Started developing in Groovy 1995, pre Groovy 1.0
+* Three year project
+* 50,000 SLOC - 50% App Code / 50% Test
+* Development team includes IT and Subject Matter Experts with various technical ability
+* Part of large J2EE Project
+* High visibility app for a Fortune 500 Company
+
+=== Project Overview
+Problem: Build a new group insurance sales system in Java.
+
+Sales System Components
+[%step]
+* Contact management
+* Proposals
+* Group Census
+* Plan Design
+* Compute Premium => _Rating Engine_
+* Proposal Generation
+
+
+=== Rating Engine Team & Tools
+
+* Year: 2005
+* Inital Team Size: 3
+** Java programmer with 15+ years C/C++/Java
+** DB2/Cobol programmer 8 years experience, less than one in Java
+** VB/SQL database programmer with 10 years experience, less than one in Java
+* Tools: Ant + JEdit
+
+=== Application Architecture
+Rich Client -> J2EE App Server (controller, services, DAO, bus. logic)
+
+// TODO: add a diagram here
+
+=== Why Groovy?
+[%step]
+* Readability for complicated business logic
+** minimal syntax - signal/noise ratio
+** decimal math for accuracy
+* Maintenance by IT and Subject Matter Experts
+* Java Integration
+
+== Code Examples
+* Groovy Beans (dot property notation, implied getters/setters, maps)
+* Collection Classes (People, Products)
+* Big Decimal
+
+=== Basic Readability
+// TODO: better code example
+Collections, Groovy Beans and Maps
+
+[source,groovy]
+.groovy code from project
+----
+products.each { product ->
+  product.options.each { optionName, optionValue->
+    people.each { person ->
+      def factor = lookupFactor(person.age, optionName, optionValue)
+      person.optionFactor += factor
+    }
+  }
+}
+----
+
+=== Basic Readability
+// TODO: better code example
+Manipulating Collections
+
+[source,groovy]
+.groovy code from project
+----
+static void sortDemos(claims) {
+  claims.sort{it.lName}
+  claims.sort{it.amount}
+  claims = claims.reverse()
+  claims = claims.sort{it.fName}.reverse()
+}
+
+static void sumDemos(claims) {
+  def totClaims = claims.sum{it.amount}
+  def claimsUnder30000 = claims.findAll {
+    it.amount < 30000.00
+  }.sum{ it.amount }
+
+  def avgClaim = claims.sum{it.amount} / claims.size()
+}
+----
+=== Java BigDecimal Math Example
+[%step]
+* (d * (b - c) + e * (c - a)) / (a -b)
 
 [source,java]
-.Java code from project
 ----
-include::{sourcedir}/example/StringUtils.java[tags=contains,indent=0]
+BigDecimal interpolate(final BigDecimal lowerBound,
+  final BigDecimal upperBound, final BigDecimal value,
+  final BigDecimal lowerValue, final BigDecimal upperValue) {
+
+  final BigDecimal uMinusv = upperBound.subtract(value);
+  final BigDecimal vMinusl = value.subtract(lowerBound);
+  final BigDecimal uMinusl = upperBound.subtract(lowerBound);
+
+  return lowerValue.multiply(uMinusv)
+                   .add(upperValue.multiply(vMinusl))
+                   .divide(uMinusl, 10, BigDecimal.ROUND_HALF_UP);
+}
+
+----
+=== Basic Readability: BigDecimal Math
+
+Groovy provides:
+
+* operating overloading
+* BigDecimal literals by default
+* auto-coerces Integers to BigDecimal
+
+[source,groovy]
+----
+// interpolate(30, 40, 35, 100, 200) = 150
+
+def interpolate(lowerBound, upperBound, value,
+                lowerValue, upperValue) {
+
+ (lowerValue * (upperBound - value) +
+  upperValue * (value - lowerBound)) /
+ (upperBound - lowerBound)
+
+}
 ----
 
-This page was built by the following command:
+=== BigDecimal - Accuracy
 
- $ ./gradlew asciidoctor
+Don't want to introduce errors accidentally by using floats or doubles
+** when multiplying factors together
+** when looking up values in a rate table
 
+
+
+[source,groovy]
+----
+members.each { member ->
+  member.eeDisClm = member.eeVol * member.factor1 *
+                    planFactor.factorA *
+                    planFactor.factorB *
+                    planFactor.factorC *
+                    member.factor2 * member.factor3
+}
 == Blank screen
 
 You can press `*b*` or `*.*` to blank your current screen.
