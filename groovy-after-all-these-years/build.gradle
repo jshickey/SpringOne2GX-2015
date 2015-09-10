@@ -12,6 +12,7 @@ buildscript {
 plugins {
   id 'org.asciidoctor.convert' version '1.5.2'
   id 'com.github.jruby-gradle.base' version '0.1.5'
+  id 'org.kordamp.gradle.livereload' version '0.2.1'
 }
 
 apply plugin: 'com.github.jruby-gradle.base'
@@ -56,10 +57,10 @@ download {
 
 asciidoctor {
 
-    dependsOn jrubyPrepareGems
+  dependsOn jrubyPrepareGems
 
 	sources {
-		include 'example-manual.adoc'
+		include 'presentation.adoc'
 	}
 
 	resources {
@@ -92,4 +93,8 @@ asciidoctor {
 	options template_dirs : [new File(templateDir,'templates/slim').absolutePath ]
 
 	dependsOn download
+}
+
+liveReload {
+  docRoot asciidoctor.outputDir.canonicalPath
 }
