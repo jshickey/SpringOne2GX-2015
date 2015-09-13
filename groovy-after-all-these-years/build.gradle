@@ -61,11 +61,13 @@ asciidoctor {
 
 	sources {
 		include 'presentation.adoc'
+		include 'white.css'
 	}
 
 	resources {
 		from (sourceDir) {
 			include 'images/**'
+			include '**/*.css'
 		}
 		from (downloadDir) {
 			include 'reveal.js/**'
@@ -77,7 +79,8 @@ asciidoctor {
 	attributes	'build-gradle': file('build.gradle'),
 				'sourcedir': project.sourceSets.main.java.srcDirs[0],
 				'endpoint-url': 'http://example.org',
-				'source-highlighter' : 'coderay',
+				'source-highlighter' : 'highlightjs',
+				'highlighter-theme' : 'googlecode',
 				'imagesdir':'./images',
 				'toc':'left',
 				'icons': 'font',
@@ -85,10 +88,16 @@ asciidoctor {
 				'idprefix':'',
 				'idseparator':'-',
 				'docinfo1':'true',
-				'revealjs_theme':'black',
+				'width':'100%',
+				'margin':'0.1',
+
+				//'revealjs_theme':'white',
+				'revealjs_margin': '0.05',
 				'revealjs_transition':'linear',
 				'revealjs_history':'true',
-				'revealjs_slideNumber':'true'
+				'revealjs_slideNumber':'true',
+				'revealjs_customtheme': 'white.css',
+				'revealjs_parallaxBackgroundSize':'1280px 720px'
 
 	options template_dirs : [new File(templateDir,'templates/slim').absolutePath ]
 

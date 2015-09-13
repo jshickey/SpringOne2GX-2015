@@ -1,18 +1,27 @@
-= Groovy After All These Years
-Scott Hickey
-2015-September-15
-:revnumber: {project-version}
-:example-caption!:
+:width: 100%
+:revealjs_margin: '0.1'
 ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../java]
+= Groovy After All These Years
+
+
+[data-background={imagesdir}/TitleSlide-GroovyAfterAllTheseYears.jpg]
+== !
+
 
 == About Me
+:hardbreaks:
+
 Scott Hickey +
 Principal Enterprise Architect +
-Mutual of Omaha +
+Mutual of Omaha
+
 
 @jshickey +
 scott.hickey@mutualofomaha.com +
+https://github.com/jshickey/SpringOne2GX-2015
+
+:!hardbreaks:
 
 == Agenda
 _(please ask questions as you have them)_
@@ -27,31 +36,19 @@ _(please ask questions as you have them)_
 * Other Groovy Sightings at Mutual of Omaha
 
 
+== Project Overview
+Ten years, we started a project to build new group insurance sales system that...
 
-== Speaker Notes
-
-Press the `*s*` key to access speaker notes.
+* integrates the functions of 7 separate legacy systems
+* using modern technology (Java)
+* allow the actuaries to maintain the rating code
 
 [NOTE.speaker]
 --
-You've unlocked the super secret notes area.
-Neat huh?
+How to reconcile 2 & 3 weren't known
 --
 
-== Project Overview
-
-[%step]
-* Started developing in Groovy 1995, pre Groovy 1.0
-* Three year project
-* 50,000 SLOC - 50% App Code / 50% Test
-* Development team includes IT and Subject Matter Experts with various technical ability
-* Part of large J2EE Project
-* High visibility app for a Fortune 500 Company
-
-=== Project Overview
-Problem: Build a new group insurance sales system in Java.
-
-Sales System Components
+=== Sales System Components
 [%step]
 * Contact management
 * Proposals
@@ -59,12 +56,47 @@ Sales System Components
 * Plan Design
 * Compute Premium => _Rating Engine_
 * Proposal Generation
+* Enrollment Documentation
 
+[NOTE.speaker]
+--
+* rating engine one part of bigger process
+* hardest part of hard project
+* xxx Global Svcs wouldn't touch it
+--
+
+=== Project Business Goals
+[%step]
+* Time to Market for New Product Features
+  ** can't make CR process worse
+  ** cont. change to hardest part of the system
+
+* Improve Cycle Time in Sales Process
+  ** avoid duplication of effort
+  ** near instantaneous rate computation
+
+[NOTE.speaker]
+--
+* six months to implement product feature
+  ** elminate requirements specification
+  ** easy to change code
+* performance matters
+--
+
+
+== Project Facts
+
+[%step]
+* Project Started 2005
+* Muliyear, Multi-million dollar project, large project team
+* High visibility app for a Fortune 500 Company
+* Front End written with Eclipse Rich Client Platform
+* Backend traditional WebSphere, Hibernate J2EE
 
 === Rating Engine Team & Tools
 
-* Year: 2005
-* Inital Team Size: 3
+* Groovy: pre 1.0
+* Rating Enging Team Size: 6-10
 ** Java programmer with 15+ years C/C++/Java
 ** DB2/Cobol programmer 8 years experience, less than one in Java
 ** VB/SQL database programmer with 10 years experience, less than one in Java
@@ -81,36 +113,127 @@ Rich Client -> J2EE App Server (controller, services, DAO, bus. logic)
 ** minimal syntax - signal/noise ratio
 ** decimal math for accuracy
 * Maintenance by IT and Subject Matter Experts
-* Java Integration
+* Seamless Java Integration
+
+
+=== Deployed to Production in 2008
+
+* Working Rating Engine
+* A Versatile Test Harness
+* 45,000 lines of Code
+* Avg time to rate/price was 3 to 4 seconds (not all of which was rating engine time)
+
+[NOTE.speaker]
+--
+99.9% of the calcs could be performed in less than one second - with the very old version of groovy.
+
+The system was computing 200,000 - 300,000 rate multipliers per request.
+--
+
+
+=== Since 2008
+* Other Developers have come and gone
+* 5 additional Group Actuarial individuals have been or are active in the code
+* 7 additional I/S Developers have been or are active in the code base
+* Only 2 of these 12 had significant Java experience prior to supporting the Rating Engine
+
+=== Since 2008 (cont.)
+* The Code base has Grown Significantly
+* Added 3 New Products (and more on the way)
+* Re-architected the calculations for almost every product
+* Now at 120,000 Lines of Code
+* Developed an Entire New Reporting Process in Groovy
+* Ported from DB2 to Teradata
+
+=== Run Time Errors
+[%step]
+.Run Time Errors are a Concern
+* We’ve had less than 10 instances in prod
+* They can be costly and embarrassing
+
+[%step]
+.BUT Not as big a concern as failing silently!
+* Calculation errors
+* Calculation omissions
+* Requirements misunderstandings
+
 
 == Code Examples
-* Groovy Beans (dot property notation, implied getters/setters, maps)
-* Collection Classes (People, Products)
-* Big Decimal
+* Groovy
+** Groovy Beans
+** Collection Classes
+** Big Decimal
+* Spring
+** Dependency Injection - Testing
+** AOP - Exception Handling & Troubleshooting
+** Stateless Singletons (Functional Design)
 
-=== Basic Readability
-// TODO: better code example
-Collections, Groovy Beans and Maps
+[NOTE.speaker]
+--
+Beans - dot property notation, implied getters/setters, maps
+Collections/Operator Overloading - was our DSL
+--
+
+
+=== Functions With Maps & Beans
+//[width='100%']
+[source,groovy]
+----
+import java.time.*
+class Person {
+     String fname
+     String lname
+     LocalDate dob
+}
+age = {Period.between( it.dob, LocalDate.now())}
+p = new Person(fname:'Scott',
+               lname:'Hickey',
+               dob:LocalDate.of(1963,Month.SEPTEMBER,30))
+age(p).dump()
+===> <java.time.Period@d0b33 years=51 months=11 days=13>
+
+age(p) == age([dob:LocalDate.of(1963,Month.SEPTEMBER,30)])
+===> true
+----
+
+[NOTE.speaker]
+--
+* only code get/set that does something interesting
+* starting coding functions first, model later
+--
+=== Business DSL for Free
 
 [source,groovy]
-.groovy code from project
 ----
 products.each { product ->
   product.options.each { optionName, optionValue->
     people.each { person ->
       def factor = lookupFactor(person.age, optionName, optionValue)
-      person.optionFactor += factor
+      person.optionFactor **= factor
     }
   }
 }
 ----
+////
+import java.time.*
+class Person {
+    String first
+    String last
+    LocalDate dob
+}
+age = {Period.between( it.dob, LocalDate.now())}
+p = new Person(first:'Scott',last:'Hickey',dob:LocalDate.of( 1963, Month.SEPTEMBER, 30))
+age(p).dump()
+age([dob:LocalDate.of( 1963, Month.SEPTEMBER, 30)]).dump()
 
-=== Basic Readability
+////
+
+=== Manipulating Collections
+
 // TODO: better code example
-Manipulating Collections
 
-[source,groovy]
-.groovy code from project
+
+[source,language="groovy"]
 ----
 static void sortDemos(claims) {
   claims.sort{it.lName}
@@ -128,6 +251,63 @@ static void sumDemos(claims) {
   def avgClaim = claims.sum{it.amount} / claims.size()
 }
 ----
+
+
+=== Readability - Process
+
+[source,language="groovy"]
+----
+def createProductOutput(productInput) {
+    def productOutput = new ProductOutput()
+    def planFactors = []
+    productInput.planDesigns.each{ pd ->
+        def planCensus = productInput.planDesignCensusMap
+                                .get(pd.planDesignId)
+        def members = generatePlanMembers(planCensus)
+        calculateMemberFactors(members)
+        def planFactor = generatePlanFactors(members)
+        planFactors << planFactor
+        calculateExpenses(planFactor, members)
+    }
+    planFactors << generateAlternateFactor(planFactors)
+}
+----
+
+[NOTE.speaker]
+--
+* nothing feels like Java
+* could you express this with less syntax?
+--
+
+
+=== Readability - Calcs
+
+[source,language="groovy"]
+----
+billingClaimCost = premium - (
+    typeAmt +
+    typePerEe +
+    typePctCc +
+    comsData.comsAmt +
+    ( comsData.comsPepm * planDesigns[0].altPartLivesAmt * 12 ) +
+    type2Flat +
+    miscExp)
+
+members.each { member ->
+    member.eeDisClm = member.eeVol *
+                      member.factor1 *
+                      planFactor.factorA *
+                      planFactor.factorB *
+                      planFactor.factorC *
+                      member.factor2 * member.factor3
+}
+----
+[NOTE.speaker]
+--
+* Pepm - Per employee Per month
+* means something to actuaries, minimal syntax
+--
+
 === Java BigDecimal Math Example
 [%step]
 * (d * (b - c) + e * (c - a)) / (a -b)
@@ -146,11 +326,9 @@ BigDecimal interpolate(final BigDecimal lowerBound,
                    .add(upperValue.multiply(vMinusl))
                    .divide(uMinusl, 10, BigDecimal.ROUND_HALF_UP);
 }
-
 ----
-=== Basic Readability: BigDecimal Math
 
-Groovy provides:
+=== Groovy BigDecimal Math Example
 
 * operating overloading
 * BigDecimal literals by default
@@ -158,25 +336,38 @@ Groovy provides:
 
 [source,groovy]
 ----
-// interpolate(30, 40, 35, 100, 200) = 150
-
 def interpolate(lowerBound, upperBound, value,
-                lowerValue, upperValue) {
+                 lowerValue, upperValue) {
 
- (lowerValue * (upperBound - value) +
-  upperValue * (value - lowerBound)) /
- (upperBound - lowerBound)
+    (lowerValue * (upperBound - value) +
+     upperValue * (value - lowerBound)) /
+    (upperBound - lowerBound)
 
 }
 ----
 
+=== Get the Right Behavior by Default
+----
+groovy:000> def interpolate(lowerBound, upperBound, value,
+groovy:001>                 lowerValue, upperValue) {
+groovy:002>
+groovy:002>  (lowerValue * (upperBound - value) +
+groovy:003>   upperValue * (value - lowerBound)) /
+groovy:004>  (upperBound - lowerBound)
+groovy:005>
+groovy:005> }
+===> true
+groovy:000> interpolate(20, 30, 25, 1.5, 2.5)
+===> 2.0
+groovy:000> interpolate(20, 30, 25, 1.5, 2.5).dump()
+===> <java.math.BigDecimal@26d intVal=20 scale=1 precision=2 stringCache=null intCompact=20>
+----
+
+
 === BigDecimal - Accuracy
 
-Don't want to introduce errors accidentally by using floats or doubles
-** when multiplying factors together
-** when looking up values in a rate table
-
-
+Don't want to introduce errors accidentally by using floats or doubles +
+=> when multiplying factors together
 
 [source,groovy]
 ----
@@ -187,6 +378,34 @@ members.each { member ->
                     planFactor.factorC *
                     member.factor2 * member.factor3
 }
+----
+
+=== BigDecimal - Accuracy (cont.)
+
+Don't want to introduce errors accidentally by using floats or doubles  +
+=> when looking up values in a rate table
+----
+groovy> println 1.1 + 0.1 == 1.2
+true
+groovy> println 1.1f + 0.1f == 1.2
+false
+groovy> println 1.1f + 0.1f
+1.200000025331974
+
+groovy> println 1.0 + 0.1 == 1.1
+true
+groovy> println 1.0f + 0.1f
+1.1000000014901161
+groovy> println 0.9f + 0.1f
+0.9999999776482582
+----
+=== Spring Dependency Injection - Testing
+
+=== Spring AOP - Exception Handling & Troubleshooting
+
+=== Stateless Singletons (Functional Design)
+
+
 == Blank screen
 
 You can press `*b*` or `*.*` to blank your current screen.
