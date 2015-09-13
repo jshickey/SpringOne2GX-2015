@@ -36,6 +36,23 @@ _(please ask questions as you have them)_
 * Other Groovy Sightings at Mutual of Omaha
 
 
+=== After Seven Years in Production We Learned Groovy is Better, Period.
+[%step]
+* Concise
+* Easier to read and comprehend
+* Easier to on-board new devs (experienced and novice)
+* Easier to maintain/extend/troubleshoot
+* Non-Java devs who know the business can write/maintain code
+
+=== After Seven Years in Production We Learned Groovy is Better, Period.
+[%step]
+* Use it on the code that is hardest to understand, changes the most, most susceptible to logic errors
+* Development Speed
+* Fast time to market for new apps
+* Quick to enhance app with new features
+* TDD - you’ll always be writing meaningful tests!
+
+
 == Project Overview
 Ten years, we started a project to build new group insurance sales system that...
 
@@ -405,7 +422,30 @@ groovy> println 0.9f + 0.1f
 
 === Stateless Singletons (Functional Design)
 
+=== Other Groovy Sightings
+*80+ Grails apps*
+* used to replace internal Lotus Notes applications
+* better option for scaling an internal app that get traction vs MS Access, Notes
 
+*Gradle*
+* new Continuous Integration Platform for all JVM apps
+* Custom Jenkins Job DSL for build pipeline
+
+== Big Takeaways
+:hardbreaks:
+*Don’t Let FUD Get in Your Way*
+Groovy is fast enough
+Groovy is stable enough
+Tooling is good enough
+Awesome community and commercial support
+
+*Benefits*
+Groovy is accessible for all skill levels
+Groovy is readable, concise
+Groovy is powerful
+Groovy is phenomenal language for complicated business applications!
+
+:!hardbreaks:
 == Blank screen
 
 You can press `*b*` or `*.*` to blank your current screen.
