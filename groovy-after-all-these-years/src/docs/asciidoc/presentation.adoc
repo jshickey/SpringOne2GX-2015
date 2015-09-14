@@ -27,16 +27,17 @@ https://github.com/jshickey/SpringOne2GX-2015
 _(please ask questions as you have them)_
 
 [%step]
+* Lessons Learned
 * Project Overview
 * Code Examples
-* TDD
-* Decision Points
-* Lessons Learned Getting Into Production
-* Eight Years of Enhancements and Maintainence
+// * TDD
+// * Decision Points
+// * Lessons Learned Getting Into Production
+// * Eight Years of Enhancements and Maintainence
 * Other Groovy Sightings at Mutual of Omaha
 
 
-=== After Seven Years in Production We Learned Groovy is Better, Period.
+== After Seven Years in Production We Learned Groovy is Better, Period.
 [%step]
 * Concise
 * Easier to read and comprehend
@@ -54,7 +55,7 @@ _(please ask questions as you have them)_
 
 
 == Project Overview
-Ten years, we started a project to build new group insurance sales system that...
+Ten years ago, we started a project to build new group insurance sales system that...
 
 * integrates the functions of 7 separate legacy systems
 * using modern technology (Java)
@@ -101,7 +102,7 @@ How to reconcile 2 & 3 weren't known
 --
 
 
-== Project Facts
+=== Project Facts
 
 [%step]
 * Project Started 2005
@@ -110,26 +111,43 @@ How to reconcile 2 & 3 weren't known
 * Front End written with Eclipse Rich Client Platform
 * Backend traditional WebSphere, Hibernate J2EE
 
-=== Rating Engine Team & Tools
+=== Rating Engine Team
+Developed by a team of 8
 
-* Groovy: pre 1.0
-* Rating Enging Team Size: 6-10
-** Java programmer with 15+ years C/C++/Java
-** DB2/Cobol programmer 8 years experience, less than one in Java
-** VB/SQL database programmer with 10 years experience, less than one in Java
-* Tools: Ant + JEdit
+* 1 Project Manager
+* 3 Members of the Group Actuarial Staff
+* 4 I/S Developers
+* Extremely Limited Java Experience
+** 1 Seasoned Java Developer
+** 1 developer with some Java experience
+** 5 with No Actual Java development experience
+
+=== Rating Engine Tools
+
+* Started with Groovy: pre 1.0
+* Ant
+* JEdit
+* Comand Line Dubugger
+* Eventually Eclipse
 
 === Application Architecture
-Rich Client -> J2EE App Server (controller, services, DAO, bus. logic)
+Rich Client ->
+
+J2EE App Server
+
+* controller
+* services
+* business logic => _rating engine_
+* DAO
 
 // TODO: add a diagram here
 
 === Why Groovy?
 [%step]
-* Readability for complicated business logic
-** minimal syntax - signal/noise ratio
-** decimal math for accuracy
 * Maintenance by IT and Subject Matter Experts
+** Readability for complicated business logic
+** Minimal syntax - signal/noise ratio
+** Decimal math for accuracy
 * Seamless Java Integration
 
 
