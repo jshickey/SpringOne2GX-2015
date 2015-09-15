@@ -156,7 +156,7 @@ J2EE App Server
 * Working Rating Engine
 * A Versatile Test Harness
 * 45,000 lines of Code
-* Avg time to rate/price was 3 to 4 seconds (not all of which was rating engine time)
+* Avg time to rate/price was 3 to 4 seconds (Groovy engine rates 99.9% of the groups in less than 1 second)
 
 [NOTE.speaker]
 --
@@ -434,20 +434,138 @@ groovy> println 1.0f + 0.1f
 groovy> println 0.9f + 0.1f
 0.9999999776482582
 ----
+
+
 === Spring Dependency Injection - Testing
+50+ Lookup Tables Stored in Memory
 
-=== Spring AOP - Exception Handling & Troubleshooting
+.dental_sic.txt
+----
+rateSicCode, divCode, factor
+      1,       1,      0.90
+      1,       2,      1.00
+      1,       3,      1.10
+      2,       1,      0.93
 
-=== Stateless Singletons (Functional Design)
+----
+.generates Groovy Map
+----
+rateTables = [ 'dental_sic': ['1-1' : 0.90,
+                              '1-2' : 1.00,
+                              '1-3' : 1.10,
+                              '2-1' : 0.93]
+----
+=== Lazy Load Tables for Testing
+At application startup, loading all of the rate tables involves:
 
-=== Other Groovy Sightings
-*80+ Grails apps*
+* read and parse text file
+* lookup and execute key-generation alogrithm for each row, in each table
+* store the key and BigDecimal factor for each row, in each table
+
+Using a Spring test profile to lazy load the tables saved 30-40 seconds when running a single unit test.
+
+=== Exceptions Before Spring AOP
+.Application Code (for every public api)
+[source,groovy]
+----
+try {
+   // this is the only like the business people care about
+   rateBundle = rateCalc.createRateBundle(products, people)
+   if (serializeFlag) {
+      serializeInputs(products, people)
+   }
+} catch (RatingException e) {
+   if (!supressSerialization) {
+      serializeInputs(products, people)
+   }
+   throw e
+} catch (Exception e) {
+   if (!supressSerialization) {
+      serializeInputs(products, people)
+   }
+   e.printStackTrace()
+   throw new RatingException(e.getMessage())
+}
+----
+
+=== Exceptions After Spring AOP
+.Application Code
+[source,groovy]
+----
+rateBundle = rateCalc.createRateBundle(products, people)
+----
+
+.Spring Config
+[source,xml]
+----
+<!-- spring context file business people never see this-->
+<aop:config proxy-target-class="true">
+  <aop:pointcut id="ratingEnginePointcut"
+    expression="execution(* rating.svc.RatingEngine.*(..))"/>
+  <aop:aspect id="serializerBefore" ref="serializer">
+    <aop:before pointcut-ref="ratingEnginePointcut" method="before"/>
+  </aop:aspect>
+  <aop:aspect id="serializerException" ref="serializer">
+    <aop:after-throwing pointcut-ref="ratingEnginePointcut"
+     throwing="exception"
+     method="exceptionThrown"/>
+  </aop:aspect>
+</aop:config>
+----
+=== Spring Singletons, All Stateless
+[source,groovy]
+----
+class LtdRateCalc extends DisabilityRateCalc implements RateCalc {
+
+  private final Logger logger = Logger.getLogger("com.mutualofomaha.gsa.gap.rating.calc.ltd.LtdRateCalc")
+  def censusUtils       // Configured in Spring context.xml
+  def dateUtils       // Configured in Spring context.xml
+  def factorTableService    // Configured in Spring context.xml
+  def messageUtils      // Configured in Spring context.xml
+  def ltdSeriatimCalc     // Configured in Spring context.xml
+  def ltdMemberLevelCalc    // Configured in Spring context.xml
+  def ltdExpenses       // Configured in Spring context.xml
+  def ltdPlanLevelCalc    // Configured in Spring context.xml
+  def ltdBaseRates      // Configured in Spring context.xml
+  def ratingEngineController  // Configured in Spring context.xml
+  def bankCalcUtils     // Configured in Spring context.xml
+
+  public SeriatimBundle createSeriatimBundle(List planDesigns, Map planDesignCensusMap, Map factorTableVersionMap){
+----
+
+== Other Groovy Sightings
+.*80+ Grails apps*
 * used to replace internal Lotus Notes applications
 * better option for scaling an internal app that get traction vs MS Access, Notes
 
-*Gradle*
+.*Gradle*
 * new Continuous Integration Platform for all JVM apps
 * Custom Jenkins Job DSL for build pipeline
+
+=== Gradle Example
+.Creates Jenkins Build Pipeline
+[source,gradle]
+----
+pipelineConfig {
+  asi = 'ESC'
+  projectName = 'CIP-SpringBootSimple'
+  svnUrl = 'svn+ssh://svn/data/svn/MainRepository/Insurance/ESC/Utilities/trunk/CIP-SpringBootSimple'
+  buildPipelineRows = 5
+  notifiedUsers = ['req48764']
+  authorizedUsers = ['req69111','req84082','req88320', 'req88551']
+
+  createPipeline {
+    initJob(gradleSwitches:'-is')
+    buildAndUnitTestJob(skipTests: true)
+    staticCodeAnalysisJob(gradleTasks: 'sonarRunner')
+    publishSnapshotJob(gradleTasks:'war artifactoryPublish')
+    promoteToReleaseCandidateJob()
+    promoteToReleaseJob()
+  }
+}
+----
+[data-background={imagesdir}/Jenkins-Screenshot.png]
+=== !
 
 == Big Takeaways
 :hardbreaks:
@@ -461,9 +579,11 @@ Awesome community and commercial support
 Groovy is accessible for all skill levels
 Groovy is readable, concise
 Groovy is powerful
-Groovy is phenomenal language for complicated business applications!
+*Groovy is phenomenal language for complicated business applications!*
 
 :!hardbreaks:
+
+////
 == Blank screen
 
 You can press `*b*` or `*.*` to blank your current screen.
@@ -480,28 +600,6 @@ Press the `*esc*` key to get an overview of your slides.
 
 include::subdir/_b.adoc[]
 
-== Images
-
-[.thumb]
-image::sunset.jpg[scaledwidth=75%]
-
-== Attributes
-
-Press the down arrow key to see the next sub-slide.
-
-=== Attributes Part 1
-.Built-in
-asciidoctor-version:: {asciidoctor-version}
-safe-mode-name:: {safe-mode-name}
-docdir:: {docdir}
-docfile:: {docfile}
-imagesdir:: {imagesdir}
-
-=== Attributes Part 2
-.Custom
-project-version:: {project-version}
-sourcedir:: {sourcedir}
-endpoint-url:: {endpoint-url}
 
 == build.gradle
 
@@ -509,4 +607,4 @@ endpoint-url:: {endpoint-url}
 ----
 include::{build-gradle}[]
 ----
-
+////
