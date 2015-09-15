@@ -53,6 +53,11 @@ _(please ask questions as you have them)_
 * Quick to enhance app with new features
 * TDD - you’ll always be writing meaningful tests!
 
+=== After Eight Years in Production We Learned OSS is Beter.
+[%step]
+* Technical Currency - Upgrades
+* Access To Source - Vendor Stops Support
+
 
 == Project Overview
 Ten years ago, we started a project to build new group insurance sales system that...
@@ -209,6 +214,14 @@ Beans - dot property notation, implied getters/setters, maps
 Collections/Operator Overloading - was our DSL
 --
 
+=== Code Readability Was a Deliverable
+* Deadlines usually prevent code reviews, refactoring
+* Readability was part of the deliverable
+* We had to do code reviews with the actuaries
+
+_They could look at the code, in an instant, and say “That’s not how we compute the billingClaimCost”._
+
+*The logic errors are way harder to resolve than a runtime compilation error.*
 
 === Functions With Maps & Beans
 //[width='100%']
